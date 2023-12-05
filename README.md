@@ -1,75 +1,31 @@
-# Build
+# Network Service Mesh Dashboard Backend
 
-## Build cmd binary locally
+NSM dashboard backend part provides graphical model data for [the UI part](https://github.com/networkservicemesh/cmd-dashboard-ui) through the REST API
 
-You can build the locally by executing
+Written in [Go](https://go.dev/)
 
-```bash
-go build ./...
-```
+The entire NSM dashboard deployment info see [here](https://github.com/networkservicemesh/deployments-k8s/tree/main/examples/observability/dashboard)
 
-## Build Docker container
+## Dev/debug
 
-You can build the docker container by running:
+### To run dashboard backend in the cluster:
 
-```bash
-docker build .
-```
+1. `git clone git@github.com:networkservicemesh/deployments-k8s.git`
+2. `cd deployments-k8s/examples/observability/dashboard`
+3. Edit `dashboard-pod.yaml` and remove the `dashboard-ui` container
+4. `kubectl apply -f dashboard-pod.yaml`
+5. `kubectl apply -f dashboard-backend-service.yaml`
+6. `kubectl port-forward -n nsm-system service/dashboard-backend 3001:3001`
+7. Check `http://localhost:3001/nodes` in the browser
 
-# Testing
+### To run dashboard backend with a custom container ([Docker](https://docs.docker.com/engine/install/) have to be installed) in the cluster:
 
-## Testing Docker container
-
-Testing is run via a Docker container.  To run testing run:
-
-```bash
-docker run --privileged --rm $(docker build -q --target test .)
-```
-
-# Debugging
-
-## Debugging the tests
-If you wish to debug the test code itself, that can be acheived by running:
-
-```bash
-docker run --privileged --rm -p 40000:40000 $(docker build -q --target debug .)
-```
-
-This will result in the tests running under dlv.  Connecting your debugger to localhost:40000 will allow you to debug.
-
-```bash
--p 40000:40000
-```
-forwards port 40000 in the container to localhost:40000 where you can attach with your debugger.
-
-```bash
---target debug
-```
-
-Runs the debug target, which is just like the test target, but starts tests with dlv listening on port 40000 inside the container.
-
-## Debugging the cmd
-
-When you run 'cmd' you will see an early line of output that tells you:
-
-```Setting env variable DLV_LISTEN_FORWARDER to a valid dlv '--listen' value will cause the dlv debugger to execute this binary and listen as directed.```
-
-If you follow those instructions when running the Docker container:
-```bash
-docker run --privileged -e DLV_LISTEN_FORWARDER=:50000 -p 50000:50000 --rm $(docker build -q --target test .)
-```
-
-```-e DLV_LISTEN_FORWARDER=:50000``` tells docker to set the environment variable DLV_LISTEN_FORWARDER to :50000 telling
-dlv to listen on port 50000.
-
-```-p 50000:50000``` tells docker to forward port 50000 in the container to port 50000 in the host.  From there, you can
-just connect dlv using your favorite IDE and debug cmd.
-
-## Debugging the tests and the cmd
-
-```bash
-docker run --privileged -e DLV_LISTEN_FORWARDER=:50000 -p 40000:40000 -p 50000:50000 --rm $(docker build -q --target debug .)
-```
-
-Please note, the tests **start** the cmd, so until you connect to port 40000 with your debugger and walk the tests
-through to the point of running cmd, you will not be able to attach a debugger on port 50000 to the cmd.
+1. `git clone git@github.com:networkservicemesh/cmd-dashboard-backend.git`
+2. `cd cmd-dashboard-backend`
+3. Make the necessary code changes
+4. Create a [Dockerhub](https://hub.docker.com/) repository
+5. `docker build -t your-dh-namespace/dh-repo-name .`
+6. `docker push your-dh-namespace/dh-repo-name`
+7. `cd deployments-k8s/examples/observability/dashboard`
+8. Edit `dashboard-pod.yaml` and set your Dockerhub image address for the `dashboard-backend` container
+9. Execute the steps 3-7 from the previous section
