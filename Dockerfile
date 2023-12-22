@@ -19,4 +19,8 @@ CMD dlv -l :40000 --headless=true --api-version=2 test -test.v ./...
 
 FROM alpine as runtime
 COPY --from=build /bin/app /bin/app
+
+# Expose port for REST server
+EXPOSE 3001
+
 CMD /bin/app

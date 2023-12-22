@@ -16,3 +16,6 @@
 
 .idea/
 junit/
+nohup.out
+.DS_Store
+.vscode
