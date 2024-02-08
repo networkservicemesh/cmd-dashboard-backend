@@ -1,6 +1,6 @@
-// Copyright (c) 2023 Cisco and/or its affiliates.
+// Copyright (c) 2024 Cisco and/or its affiliates.
 //
-// Copyright (c) 2023 Pragmagic Inc. and/or its affiliates.
+// Copyright (c) 2024 Pragmagic Inc. and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -27,6 +27,7 @@ import (
 	"github.com/edwarnicke/genericsync"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
+	"github.com/networkservicemesh/sdk/pkg/tools/log"
 )
 
 func updateStorage(nodes []Node, edges []Edge) {
@@ -52,7 +53,7 @@ func removeManagerConnection(mgr, conn string) {
 	}
 }
 
-func parceConnectionsToGraphicalModel() {
+func parceConnectionsToGraphicalModel(logger log.Logger) {
 	nodeMap := make(map[string]Node)
 	var edges []Edge
 
@@ -70,6 +71,13 @@ func parceConnectionsToGraphicalModel() {
 
 		// Create all path segment nodes, interfaces and interface connections
 		pathSegments := conn.GetPath().GetPathSegments()
+
+		// Skip looped endpoint-endpoint connections (vl3 scenario)
+		if pathSegments[0].GetName() == pathSegments[len(pathSegments)-1].GetName() {
+			logger.Infof("Connection %q looped on %q is skipped from conversion to graphical model.", connectionID, pathSegments[0].GetName())
+			return true
+		}
+
 		var previousInterfaceID string
 		for _, segment := range pathSegments {
 			segmentType := getPathSegmentType(segment.GetName())
@@ -85,7 +93,10 @@ func parceConnectionsToGraphicalModel() {
 			case segmentType == endpointNT:
 				interfID := fmt.Sprintf("int-s--%s--%s", connectionID, node.Data.ID)
 				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, getInterfaceLabelFromMetrics(segment, serverInterface))
-				edges = addEdge(edges, previousInterfaceID, interfID, interfaceConnection, healthy)
+				if previousInterfaceID != "" {
+					edges = addEdge(edges, previousInterfaceID, interfID, interfaceConnection, healthy)
+				}
+				previousInterfaceID = interfID
 			case segmentType == forwarderNT:
 				interfCID := fmt.Sprintf("int-c--%s--%s", connectionID, node.Data.ID)
 				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, getInterfaceLabelFromMetrics(segment, clientInterface))
