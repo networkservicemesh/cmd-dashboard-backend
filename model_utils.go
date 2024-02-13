@@ -25,7 +25,6 @@ import (
 	"github.com/edwarnicke/genericsync"
 
 	"github.com/networkservicemesh/api/pkg/api/networkservice"
-	"github.com/networkservicemesh/sdk/pkg/tools/log"
 )
 
 func updateStorage(nodes []Node, edges []Edge) {
@@ -51,7 +50,7 @@ func removeManagerConnection(mgr, conn string) {
 	}
 }
 
-func parceConnectionsToGraphicalModel(logger log.Logger) {
+func parceConnectionsToGraphicalModel() {
 	nodeMap := make(map[string]Node)
 	var edges []Edge
 
@@ -69,13 +68,6 @@ func parceConnectionsToGraphicalModel(logger log.Logger) {
 
 		// Create all path segment nodes, interfaces and interface connections
 		pathSegments := conn.GetPath().GetPathSegments()
-
-		// Skip looped endpoint-endpoint connections (vl3 scenario)
-		if pathSegments[0].GetName() == pathSegments[len(pathSegments)-1].GetName() {
-			logger.Infof("Connection %q looped on %q is skipped from conversion to graphical model.", connectionID, pathSegments[0].GetName())
-			return true
-		}
-
 		var previousInterfaceID string
 		for _, segment := range pathSegments {
 			segmentType := getPathSegmentType(segment.GetName())

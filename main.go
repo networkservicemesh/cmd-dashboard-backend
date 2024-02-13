@@ -180,7 +180,7 @@ func updateConnections(logger log.Logger, nsmgrAddr string, event *networkservic
 			addManagerConnection(nsmgrAddr, connectionID)
 		}
 	}
-	parceConnectionsToGraphicalModel(logger)
+	parceConnectionsToGraphicalModel()
 }
 
 func cleanupManager(logger log.Logger, nsmgrAddr string) {
@@ -192,7 +192,7 @@ func cleanupManager(logger log.Logger, nsmgrAddr string) {
 	})
 	managerConnections.Delete(nsmgrAddr)
 	nsmgrs.Delete(nsmgrAddr)
-	parceConnectionsToGraphicalModel(logger)
+	parceConnectionsToGraphicalModel()
 }
 
 func configureAndRunRESTServer() {
