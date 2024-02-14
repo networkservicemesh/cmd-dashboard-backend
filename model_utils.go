@@ -77,22 +77,26 @@ func parceConnectionsToGraphicalModel() {
 
 			switch {
 			case segmentType == clientNT:
-				interfID := fmt.Sprintf("int-c--%s--%s", connectionID, node.Data.ID)
-				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, getInterfaceLabelFromMetrics(segment, clientInterface))
+				interfName := getInterfaceLabelFromMetrics(segment, clientInterface)
+				interfID := fmt.Sprintf("int-c--%s--%s--%s", connectionID, node.Data.ID, interfName)
+				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, interfName)
 				previousInterfaceID = interfID
 			case segmentType == endpointNT:
-				interfID := fmt.Sprintf("int-s--%s--%s", connectionID, node.Data.ID)
-				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, getInterfaceLabelFromMetrics(segment, serverInterface))
+				interfName := getInterfaceLabelFromMetrics(segment, serverInterface)
+				interfID := fmt.Sprintf("int-s--%s--%s--%s", connectionID, node.Data.ID, interfName)
+				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, interfName)
 				if previousInterfaceID != "" {
 					edges = addEdge(edges, previousInterfaceID, interfID, interfaceConnection, healthy)
 				}
 				previousInterfaceID = interfID
 			case segmentType == forwarderNT:
-				interfEID := fmt.Sprintf("int-s--%s--%s", connectionID, node.Data.ID)
-				nodeMap[interfEID] = makeInterface(interfEID, node.Data.ID, getInterfaceLabelFromMetrics(segment, serverInterface))
+				interfEName := getInterfaceLabelFromMetrics(segment, serverInterface)
+				interfEID := fmt.Sprintf("int-s--%s--%s--%s", connectionID, node.Data.ID, interfEName)
+				nodeMap[interfEID] = makeInterface(interfEID, node.Data.ID, interfEName)
 				edges = addEdge(edges, previousInterfaceID, interfEID, interfaceConnection, healthy)
-				interfCID := fmt.Sprintf("int-c--%s--%s", connectionID, node.Data.ID)
-				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, getInterfaceLabelFromMetrics(segment, clientInterface))
+				interfCName := getInterfaceLabelFromMetrics(segment, clientInterface)
+				interfCID := fmt.Sprintf("int-c--%s--%s--%s", connectionID, node.Data.ID, interfCName)
+				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, interfCName)
 				edges = addEdge(edges, interfEID, interfCID, interfaceCrossConnection, healthy)
 				previousInterfaceID = interfCID
 				// TODO Aggregate statistics for the Overview page
