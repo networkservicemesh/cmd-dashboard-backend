@@ -88,13 +88,13 @@ func parceConnectionsToGraphicalModel() {
 				}
 				previousInterfaceID = interfID
 			case segmentType == forwarderNT:
-				interfCID := fmt.Sprintf("int-c--%s--%s", connectionID, node.Data.ID)
-				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, getInterfaceLabelFromMetrics(segment, clientInterface))
-				edges = addEdge(edges, previousInterfaceID, interfCID, interfaceConnection, healthy)
 				interfEID := fmt.Sprintf("int-s--%s--%s", connectionID, node.Data.ID)
 				nodeMap[interfEID] = makeInterface(interfEID, node.Data.ID, getInterfaceLabelFromMetrics(segment, serverInterface))
-				edges = addEdge(edges, interfCID, interfEID, interfaceCrossConnection, healthy)
-				previousInterfaceID = interfEID
+				edges = addEdge(edges, previousInterfaceID, interfEID, interfaceConnection, healthy)
+				interfCID := fmt.Sprintf("int-c--%s--%s", connectionID, node.Data.ID)
+				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, getInterfaceLabelFromMetrics(segment, clientInterface))
+				edges = addEdge(edges, interfEID, interfCID, interfaceCrossConnection, healthy)
+				previousInterfaceID = interfCID
 				// TODO Aggregate statistics for the Overview page
 			}
 		}
