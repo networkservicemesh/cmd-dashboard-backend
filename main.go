@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Cisco and/or its affiliates.
-//
-// Copyright (c) 2023 Pragmagic Inc. and/or its affiliates.
+// Copyright (c) 2023-2024 Pragmagic Inc. and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -172,7 +170,7 @@ func getNseChannel(ctx context.Context, logger log.Logger, dialOptions []grpc.Di
 func updateConnections(logger log.Logger, nsmgrAddr string, event *networkservice.ConnectionEvent) {
 	for _, connection := range event.Connections {
 		connectionID := generateConnectionID(connection)
-		logger.Infof("Handling %q event on %q nsmgr connection: %q", event.Type.String(), nsmgrAddr, connectionID)
+		logger.Infof("Handling %q event on %q nsmgr connectionId: %q Connection: %q", event.Type.String(), nsmgrAddr, connectionID, connection)
 		switch {
 		case event.Type == networkservice.ConnectionEventType_DELETE:
 			connections.Delete(connectionID)
