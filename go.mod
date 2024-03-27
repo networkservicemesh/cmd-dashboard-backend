@@ -7,7 +7,7 @@ require (
 	github.com/edwarnicke/genericsync v0.0.0-20220910010113-61a344f9bc29
 	github.com/gin-gonic/gin v1.9.1
 	github.com/networkservicemesh/api v1.12.1-rc.1.0.20240325104451-92facbceb926
-	github.com/networkservicemesh/sdk v0.5.1-0.20240326082914-050d53f043eb
+	github.com/networkservicemesh/sdk v0.5.1-0.20240327123356-d6d5c0de3568
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spiffe/go-spiffe/v2 v2.1.7
 	github.com/stretchr/testify v1.8.4
