@@ -253,10 +253,11 @@ func Test_Looped_NSE_To_NSE_Connection(t *testing.T) {
 	require.Equal(t, 9, len(storageData.Nodes))
 	require.Equal(t, 3, len(storageData.Edges))
 
-	// Check that all connections have sources and targets
+	// Check that all connections have sources and targets and a proper type
 	for _, edge := range storageData.Edges {
 		require.NotEmpty(t, edge.Data.Source)
 		require.NotEmpty(t, edge.Data.Target)
+		require.Equal(t, interfaceLoopedConnection, edge.Data.Type)
 	}
 
 	// Cleanup

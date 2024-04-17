@@ -68,6 +68,18 @@ func parceConnectionsToGraphicalModel() {
 
 		// Create all path segment nodes, interfaces and interface connections
 		pathSegments := conn.GetPath().GetPathSegments()
+		var connType EdgeType
+		var fwdCrossConnType EdgeType
+		var interfaceType NodeType
+		if pathSegments[0].Name == pathSegments[len(pathSegments)-1].Name {
+			connType = interfaceLoopedConnection
+			fwdCrossConnType = interfaceLoopedConnection
+			interfaceType = loopConIfNT
+		} else {
+			connType = interfaceConnection
+			fwdCrossConnType = interfaceCrossConnection
+			interfaceType = interfaceNT
+		}
 		var previousInterfaceID string
 		for _, segment := range pathSegments {
 			segmentType := getPathSegmentType(segment.GetName())
@@ -79,25 +91,25 @@ func parceConnectionsToGraphicalModel() {
 			case segmentType == clientNT:
 				interfName := getInterfaceLabelFromMetrics(segment, clientInterface)
 				interfID := fmt.Sprintf("int-c--%s--%s--%s", connectionID, node.Data.ID, interfName)
-				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, interfName)
+				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, interfName, interfaceType)
 				previousInterfaceID = interfID
 			case segmentType == endpointNT:
 				interfName := getInterfaceLabelFromMetrics(segment, serverInterface)
 				interfID := fmt.Sprintf("int-s--%s--%s--%s", connectionID, node.Data.ID, interfName)
-				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, interfName)
+				nodeMap[interfID] = makeInterface(interfID, node.Data.ID, interfName, interfaceType)
 				if previousInterfaceID != "" {
-					edges = addEdge(edges, previousInterfaceID, interfID, interfaceConnection, healthy)
+					edges = addEdge(edges, previousInterfaceID, interfID, connType, healthy)
 				}
 				previousInterfaceID = interfID
 			case segmentType == forwarderNT:
 				interfEName := getInterfaceLabelFromMetrics(segment, serverInterface)
 				interfEID := fmt.Sprintf("int-s--%s--%s--%s", connectionID, node.Data.ID, interfEName)
-				nodeMap[interfEID] = makeInterface(interfEID, node.Data.ID, interfEName)
-				edges = addEdge(edges, previousInterfaceID, interfEID, interfaceConnection, healthy)
+				nodeMap[interfEID] = makeInterface(interfEID, node.Data.ID, interfEName, interfaceType)
+				edges = addEdge(edges, previousInterfaceID, interfEID, connType, healthy)
 				interfCName := getInterfaceLabelFromMetrics(segment, clientInterface)
 				interfCID := fmt.Sprintf("int-c--%s--%s--%s", connectionID, node.Data.ID, interfCName)
-				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, interfCName)
-				edges = addEdge(edges, interfEID, interfCID, interfaceCrossConnection, healthy)
+				nodeMap[interfCID] = makeInterface(interfCID, node.Data.ID, interfCName, interfaceType)
+				edges = addEdge(edges, interfEID, interfCID, fwdCrossConnType, healthy)
 				previousInterfaceID = interfCID
 				// TODO Aggregate statistics for the Overview page
 			}
@@ -105,11 +117,13 @@ func parceConnectionsToGraphicalModel() {
 		return true
 	})
 
-	edges = addInternalNSEInterfaceConnections(edges, nodeMap)
+	// TODO Uncomment and check in scope of the https://github.com/networkservicemesh/cmd-dashboard-backend/issues/11 (in addition need to filter-out unused NSE cross connections)
+	// edges = addInternalNSEInterfaceConnections(edges, nodeMap)
 
 	updateStorage(mapToArray(nodeMap), edges)
 }
 
+/*
 func addInternalNSEInterfaceConnections(edges []Edge, nodeMap map[string]Node) []Edge {
 	var endpoints []Node
 	for _, node := range nodeMap {
@@ -134,6 +148,7 @@ func addInternalNSEInterfaceConnections(edges []Edge, nodeMap map[string]Node) [
 	}
 	return edges
 }
+*/
 
 func makeLocalCluster(nodeMap map[string]Node) Node {
 	clusterLocal := Node{}
@@ -173,10 +188,10 @@ func makeSegmentNode(nodeMap map[string]Node, id, parentID, nsID string, segment
 	return node
 }
 
-func makeInterface(id, parentID, label string) Node {
+func makeInterface(id, parentID, label string, ifType NodeType) Node {
 	interf := Node{}
 	interf.Data.ID = id
-	interf.Data.Type = interfaceNT
+	interf.Data.Type = ifType
 	interf.Data.Parent = parentID
 	interf.Data.Label = label
 	return interf

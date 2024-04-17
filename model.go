@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Cisco and/or its affiliates.
-//
-// Copyright (c) 2023 Pragmagic Inc. and/or its affiliates.
+// Copyright (c) 2023-2024 Pragmagic Inc. and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -48,6 +46,7 @@ type NodeType string
 const (
 	clusterNT   NodeType = "cluster"
 	interfaceNT NodeType = "interface"
+	loopConIfNT NodeType = "loopConIfNT"
 	clientNT    NodeType = "client"
 	forwarderNT NodeType = "forwarder"
 	managerNT   NodeType = "manager"
@@ -60,8 +59,9 @@ const (
 type EdgeType string
 
 const (
-	interfaceConnection      EdgeType = "interfaceConnection"
-	interfaceCrossConnection EdgeType = "interfaceCrossConnection"
+	interfaceConnection       EdgeType = "interfaceConnection"
+	interfaceCrossConnection  EdgeType = "interfaceCrossConnection"
+	interfaceLoopedConnection EdgeType = "interfaceLoopedConnection"
 	// serviceRequest           EdgeType = "serviceRequest"
 	// registryRequest          EdgeType = "registryRequest"
 )
