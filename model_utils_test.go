@@ -62,8 +62,8 @@ func Test_Interface_Order(t *testing.T) {
 					Name: fwd1Name,
 					Id:   "23456",
 					Metrics: map[string]string{
-						"client_interface": cifFwd1Name,
 						"server_interface": sifFwd1Name,
+						"client_interface": cifFwd1Name,
 					},
 				},
 				{
@@ -74,8 +74,8 @@ func Test_Interface_Order(t *testing.T) {
 					Name: fwd2Name,
 					Id:   "45678",
 					Metrics: map[string]string{
-						"client_interface": cifFwd2Name,
 						"server_interface": sifFwd2Name,
+						"client_interface": cifFwd2Name,
 					},
 				},
 				{
@@ -144,7 +144,7 @@ func Test_NSE_To_NSE_Connection(t *testing.T) {
 					Name: "nse-vl3-vpp-9ln7f",
 					Id:   "12345",
 					Metrics: map[string]string{
-						"server_interface": "MEMIF/memif2670642822/2",
+						"client_interface": "KERNEL/nsmf{[CkfpGN2We",
 					},
 				},
 				{
@@ -155,8 +155,8 @@ func Test_NSE_To_NSE_Connection(t *testing.T) {
 					Name: "forwarder-vpp-zpg6b",
 					Id:   "34567",
 					Metrics: map[string]string{
+						"server_interface": "VIRTIO/tun0",
 						"client_interface": "WIREGUARD TUNNEL/wg1",
-						"server_interface": "MEMIF/memif2670642822/0",
 					},
 				},
 				{
@@ -167,8 +167,8 @@ func Test_NSE_To_NSE_Connection(t *testing.T) {
 					Name: "forwarder-vpp-s7sw5",
 					Id:   "56789",
 					Metrics: map[string]string{
-						"client_interface": "MEMIF/memif2670642822/0",
 						"server_interface": "WIREGUARD TUNNEL/wg1",
+						"client_interface": "MEMIF/memif2670642822/0",
 					},
 				},
 				{
@@ -209,6 +209,10 @@ func Test_Looped_NSE_To_NSE_Connection(t *testing.T) {
 	})
 
 	const nsmgrAddr = "10.244.1.6:5001"
+	const cifNseName = "KERNEL/nsmf{[CkfpGN2We"
+	const sifFwd1Name = "VIRTIO/tun0"
+	const cifFwd1Name = "MEMIF/memif3519870697/0"
+	const sifNseName = "MEMIF/memif2670642822/1"
 
 	connection := &networkservice.Connection{
 		NetworkService: "ns2",
@@ -218,7 +222,7 @@ func Test_Looped_NSE_To_NSE_Connection(t *testing.T) {
 					Name: "nse-vl3-vpp-gcf6j",
 					Id:   "12345",
 					Metrics: map[string]string{
-						"server_interface": "MEMIF/memif2670642822/2",
+						"client_interface": cifNseName,
 					},
 				},
 				{
@@ -229,15 +233,15 @@ func Test_Looped_NSE_To_NSE_Connection(t *testing.T) {
 					Name: "forwarder-vpp-s7sw5",
 					Id:   "34567",
 					Metrics: map[string]string{
-						"client_interface": "MEMIF/memif3519870697/0",
-						"server_interface": "VIRTIO/tun0",
+						"server_interface": sifFwd1Name,
+						"client_interface": cifFwd1Name,
 					},
 				},
 				{
 					Name: "nse-vl3-vpp-gcf6j",
 					Id:   "12345",
 					Metrics: map[string]string{
-						"server_interface": "MEMIF/memif2670642822/1",
+						"server_interface": sifNseName,
 					},
 				},
 			},
@@ -259,6 +263,16 @@ func Test_Looped_NSE_To_NSE_Connection(t *testing.T) {
 		require.NotEmpty(t, edge.Data.Target)
 		require.Equal(t, interfaceLoopedConnection, edge.Data.Type)
 	}
+
+	// Check interface names
+	found := 0
+	for _, node := range storageData.Nodes {
+		switch node.Data.Label {
+		case cifNseName, sifFwd1Name, cifFwd1Name, sifNseName:
+			found++
+		}
+	}
+	require.Equal(t, 4, found, "Unexpected interface names count detected")
 
 	// Cleanup
 	connections.Delete(connectionID)

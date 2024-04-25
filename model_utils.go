@@ -81,8 +81,8 @@ func parceConnectionsToGraphicalModel() {
 			interfaceType = interfaceNT
 		}
 		var previousInterfaceID string
-		for _, segment := range pathSegments {
-			segmentType := getPathSegmentType(segment.GetName())
+		for i, segment := range pathSegments {
+			segmentType := getPathSegmentType(i, segment.GetName())
 
 			// Add segment node
 			node := makeSegmentNode(nodeMap, segment.GetName(), clusterLocal.Data.ID, ns.Data.ID, segmentType)
@@ -212,7 +212,7 @@ func getInterfaceLabelFromMetrics(segment *networkservice.PathSegment, interface
 	if metrics != nil && metrics[interfaceType] != "" {
 		return metrics[interfaceType]
 	}
-	return "unknown"
+	return unknown
 }
 
 func duplicateNodeExists(nodeMap map[string]Node, id string) bool {
@@ -230,8 +230,10 @@ func mapToArray(nodeMap map[string]Node) []Node {
 	return nodes
 }
 
-func getPathSegmentType(name string) NodeType {
+func getPathSegmentType(index int, name string) NodeType {
 	switch {
+	case index == 0:
+		return clientNT
 	case strings.HasPrefix(name, "nsmgr-"):
 		return managerNT
 	case strings.HasPrefix(name, "forwarder-") || strings.HasPrefix(name, "fwd-"):
@@ -239,7 +241,7 @@ func getPathSegmentType(name string) NodeType {
 	case strings.HasPrefix(name, "nse-"):
 		return endpointNT
 	default:
-		return clientNT
+		return unknownNT
 	}
 }
 

@@ -52,6 +52,7 @@ const (
 	managerNT   NodeType = "manager"
 	endpointNT  NodeType = "endpoint"
 	serviceNT   NodeType = "service"
+	unknownNT   NodeType = "unknown"
 	// registryNT  NodeType = "registry"
 )
 
@@ -69,4 +70,5 @@ const (
 const (
 	clientInterface string = "client_interface"
 	serverInterface string = "server_interface"
+	unknown         string = "unknown"
 )
