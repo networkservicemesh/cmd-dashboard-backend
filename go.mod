@@ -6,8 +6,8 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/edwarnicke/genericsync v0.0.0-20220910010113-61a344f9bc29
 	github.com/gin-gonic/gin v1.9.1
-	github.com/networkservicemesh/api v1.13.1-0.20240424210452-d0df98851760
-	github.com/networkservicemesh/sdk v0.5.1-0.20240530111558-50c0908267de
+	github.com/networkservicemesh/api v1.13.1-rc.4
+	github.com/networkservicemesh/sdk v1.13.1-rc.4
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spiffe/go-spiffe/v2 v2.1.7
 	github.com/stretchr/testify v1.8.4
