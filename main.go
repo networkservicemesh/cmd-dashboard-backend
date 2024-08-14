@@ -31,6 +31,7 @@ import (
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/gin-gonic/gin"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
 	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
 	"github.com/spiffe/go-spiffe/v2/svid/x509svid"
@@ -38,8 +39,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
+	"github.com/networkservicemesh/cmd-dashboard-backend/internal/config"
 	"github.com/networkservicemesh/sdk/pkg/tools/log"
 	"github.com/networkservicemesh/sdk/pkg/tools/log/logruslogger"
+	"github.com/networkservicemesh/sdk/pkg/tools/pprofutils"
 	"github.com/networkservicemesh/sdk/pkg/tools/spiffejwt"
 	"github.com/networkservicemesh/sdk/pkg/tools/token"
 	"github.com/networkservicemesh/sdk/pkg/tools/tracing"
@@ -54,6 +57,22 @@ func main() {
 		syscall.SIGQUIT,
 	)
 	defer cancel()
+
+	// Get cfg from environment
+	cfg := &config.Config{}
+	if err := envconfig.Usage("nsm", cfg); err != nil {
+		log.FromContext(ctx).Fatal(err)
+	}
+	if err := envconfig.Process("nsm", cfg); err != nil {
+		log.FromContext(ctx).Fatalf("error processing cfg from env: %+v", err)
+	}
+
+	log.FromContext(ctx).Infof("Using configuration: %v", cfg)
+
+	// Configure pprof
+	if cfg.PprofEnabled {
+		go pprofutils.ListenAndServe(ctx, cfg.PprofListenOn)
+	}
 
 	// Setup logger
 	log.EnableTracing(true)

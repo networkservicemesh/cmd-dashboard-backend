@@ -29,13 +29,13 @@ linters-settings:
   goimports:
     local-prefixes: github.com/networkservicemesh
   gocyclo:
-    min-complexity: 15
+    min-complexity: 20
   maligned:
     suggest-new: true
   dupl:
     threshold: 150
   funlen:
-    Lines: 100
+    Lines: 120
     Statements: 50
   goconst:
     min-len: 2

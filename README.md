@@ -6,6 +6,13 @@ Written in [Go](https://go.dev/)
 
 The entire NSM dashboard deployment info see [here](https://github.com/networkservicemesh/deployments-k8s/tree/main/examples/observability/dashboard)
 
+## Usage
+
+### Environment config
+
+* `NSM_PPROF_ENABLED`   - is pprof enabled (default: "false")
+* `NSM_PPROF_LISTEN_ON` - pprof URL to ListenAndServe (default: "localhost:6060")
+
 ## Dev/debug
 
 ### To run dashboard backend in the cluster:
