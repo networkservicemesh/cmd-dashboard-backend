@@ -52,3 +52,22 @@ jobs:
       tag: ${{ needs.get-tag.outputs.tag }}
     secrets:
       token: ${{ secrets.NSM_BOT_GITHUB_TOKEN }}
+
+  release-dependent-repositories:
+    name: Release dependent repositories
+    runs-on: ubuntu-latest
+    needs: get-tag
+    steps:
+      - name: Checkout networkservicemesh/cmd-dashboard-ui
+        uses: actions/checkout@v4
+        with:
+          path: networkservicemesh/cmd-dashboard-ui
+          repository: networkservicemesh/cmd-dashboard-ui
+          token: ${{ secrets.NSM_BOT_GITHUB_TOKEN }}
+
+      - name: Push update to the cmd-dashboard-ui
+        working-directory: networkservicemesh/cmd-dashboard-ui
+        run: |
+          echo Starting to update repository cmd-backend-ui
+          git checkout -b ${{ github.event.workflow_run.head_branch }}
+          git push -f origin ${{ github.event.workflow_run.head_branch }}
